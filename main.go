@@ -1,7 +1,7 @@
 package main
 
-var store Store
+import "github.com/daimonos/go-bookshelf/cmd"
 
 func main() {
-	Execute()
+	cmd.Execute()
 }
