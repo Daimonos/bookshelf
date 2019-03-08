@@ -4,7 +4,7 @@ import "time"
 
 type Book struct {
 	Title     string    `json:"title"`
-	Author    string    `json:"isbn"`
+	Author    string    `json:"author"`
 	IsRead    bool      `json:"is_read"`
 	IsOnLoan  bool      `json:"is_on_loan"`
 	LoanedTo  string    `json:"loaned_to"`
