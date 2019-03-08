@@ -77,6 +77,7 @@ func ListCmd(cmd *cobra.Command, args []string) {
 
 func StartApi(cmd *cobra.Command, args []string) {
 	r := api.NewRouter(&store)
+	log.Println("Listening on port 8080")
 	http.ListenAndServe(":8080", r)
 }
 
