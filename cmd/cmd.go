@@ -3,9 +3,11 @@ package cmd
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/daimonos/go-bookshelf/api"
 	"github.com/daimonos/go-bookshelf/data"
 	"github.com/spf13/cobra"
 )
@@ -26,6 +28,12 @@ var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List Books",
 	Run:   ListCmd,
+}
+
+var apiCmd = &cobra.Command{
+	Use:   "api",
+	Short: "Start API",
+	Run:   StartApi,
 }
 
 func Execute() {
@@ -67,9 +75,15 @@ func ListCmd(cmd *cobra.Command, args []string) {
 	fmt.Println("---\nDone")
 }
 
+func StartApi(cmd *cobra.Command, args []string) {
+	r := api.NewRouter(&store)
+	http.ListenAndServe(":8080", r)
+}
+
 func init() {
 	store = data.Store{}
 	store.Init()
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(apiCmd)
 }
