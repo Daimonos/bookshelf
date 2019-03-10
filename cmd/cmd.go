@@ -30,6 +30,18 @@ var listCmd = &cobra.Command{
 	Run:   ListCmd,
 }
 
+var deleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete Book",
+	Run:   DeleteCmd,
+}
+
+var getCmd = &cobra.Command{
+	Use:   "get",
+	Short: "Get Book by Id",
+	Run:   GetCmd,
+}
+
 var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "Start API",
@@ -55,7 +67,14 @@ func AddCmd(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalf("Error Parsing book from argument: %s", args[2])
 	}
-	_, err = store.AddBook(args[0], args[1], isRead, onLoan, args[4])
+	book := data.Book{
+		Title:    args[0],
+		Author:   args[1],
+		IsRead:   isRead,
+		IsOnLoan: onLoan,
+		LoanedTo: args[4],
+	}
+	_, err = store.AddBook(book)
 	if err != nil {
 		log.Fatalf("Error adding book: %s", err)
 	}
@@ -68,11 +87,36 @@ func ListCmd(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalf("Error getting all books: %s", err)
 	}
-	fmt.Printf("%-75s %-20s %-10s %-10s %-15s\n", "Title (Key)", "Author", "Read", "Loan", "Loaned To")
+	fmt.Printf("%-5s %-75s %-20s %-10s %-10s %-15s\n", "ID", "Title (Key)", "Author", "Read", "Loan", "Loaned To")
 	for _, b := range books {
-		fmt.Printf("%-75s %-20s %-10s %-10s %-15s\n", b.Title, b.Author, strconv.FormatBool(b.IsRead), strconv.FormatBool(b.IsOnLoan), b.LoanedTo)
+		fmt.Printf("%-5d %-75s %-20s %-10s %-10s %-15s\n", b.ID, b.Title, b.Author, strconv.FormatBool(b.IsRead), strconv.FormatBool(b.IsOnLoan), b.LoanedTo)
 	}
 	fmt.Println("---\nDone")
+}
+
+func DeleteCmd(cmd *cobra.Command, args []string) {
+	key, err := strconv.ParseUint(args[0], 10, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = store.DeleteBookByKey(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Deleted book with key: %s\n", key)
+}
+
+func GetCmd(cmd *cobra.Command, args []string) {
+	key, err := strconv.ParseUint(args[0], 10, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Getting Book by ID: %d\n", key)
+	book, err := store.GetBookByKey(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(book)
 }
 
 func StartApi(cmd *cobra.Command, args []string) {
@@ -87,4 +131,6 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(apiCmd)
+	rootCmd.AddCommand(deleteCmd)
+	rootCmd.AddCommand(getCmd)
 }

@@ -3,6 +3,7 @@ package data
 import (
 	"encoding/binary"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -34,34 +35,59 @@ func (s *Store) Init() {
 	}
 }
 
-func (s *Store) AddBook(title, author string, isRead, isOnLoan bool, onLoanTo string) (Book, error) {
-	var book Book
+func (s *Store) AddBook(book Book) (Book, error) {
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		var err error
 		b := tx.Bucket([]byte("books"))
-		book := Book{
-			Title:     title,
-			Author:    author,
-			IsRead:    isRead,
-			IsOnLoan:  isOnLoan,
-			LoanedTo:  onLoanTo,
-			CreatedAt: time.Now(),
-		}
 		if !book.IsOnLoan {
 			book.LoanedTo = ""
+		}
+		book.ID, err = b.NextSequence()
+		if err != nil {
+			return err
 		}
 		var buffer []byte
 		buffer, err = GetBufferFromStruct(book)
 		if err != nil {
 			return err
 		}
-		err = b.Put([]byte(book.Title), buffer)
+		book.CreatedAt = time.Now()
+		err = b.Put(itob(book.ID), buffer)
 		return nil
 	})
 	if err != nil {
 		return Book{}, err
 	}
 	return book, nil
+}
+
+func (s *Store) GetBookByKey(key uint64) (Book, error) {
+	var book Book
+	err := s.db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("books"))
+		v := b.Get(itob(key))
+		json.Unmarshal(v, &book)
+		return nil
+	})
+	if err != nil {
+		return Book{}, err
+	}
+	if book.ID != key {
+		return Book{}, errors.New("not found")
+	}
+	return book, nil
+}
+
+func (s *Store) DeleteBookByKey(key uint64) error {
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("books"))
+		err := b.Delete(itob(key))
+		return err
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *Store) GetAllBooks() ([]Book, error) {
