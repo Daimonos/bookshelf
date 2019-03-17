@@ -55,6 +55,20 @@ func HandleGetByKey(w http.ResponseWriter, r *http.Request) {
 	WriteJSON(w, http.StatusOK, book)
 }
 
+func HandleDeleteByKey(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.ParseUint(vars["id"], 10, 64)
+	if err != nil {
+		WriteError(w, http.StatusBadRequest, err)
+	}
+	err = store.DeleteBookByKey(id)
+	if err != nil {
+		WriteError(w, http.StatusInternalServerError, err)
+	}
+	WriteJSON(w, http.StatusOK, id)
+
+}
+
 func WriteError(w http.ResponseWriter, code int, err error) {
 	w.WriteHeader(code)
 	w.Write([]byte(err.Error()))
@@ -66,8 +80,7 @@ func WriteJSON(w http.ResponseWriter, code int, payload interface{}) {
 		WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	w.Header().Add("Content-Type", "application/json")
-	w.Header().Add("Produces", "application/json")
 	w.Write(body)
 }
