@@ -6,15 +6,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/boltdb/bolt"
 )
 
+// Store for holding the db
 type Store struct {
 	db *bolt.DB
 }
 
+// Init - Initializes the store
 func (s *Store) Init() {
 	log.Println("initializing store")
 	var err error
@@ -35,6 +36,7 @@ func (s *Store) Init() {
 	}
 }
 
+// AddBook - adds a book to the store
 func (s *Store) AddBook(book Book) (Book, error) {
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		var err error
@@ -51,7 +53,6 @@ func (s *Store) AddBook(book Book) (Book, error) {
 		if err != nil {
 			return err
 		}
-		book.CreatedAt = time.Now()
 		err = b.Put(itob(book.ID), buffer)
 		return nil
 	})
@@ -61,6 +62,7 @@ func (s *Store) AddBook(book Book) (Book, error) {
 	return book, nil
 }
 
+// GetBookByKey - Gets book details by key
 func (s *Store) GetBookByKey(key uint64) (Book, error) {
 	var book Book
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -78,6 +80,7 @@ func (s *Store) GetBookByKey(key uint64) (Book, error) {
 	return book, nil
 }
 
+// DeleteBookByKey - Deletes a book by it's id
 func (s *Store) DeleteBookByKey(key uint64) error {
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("books"))
@@ -90,6 +93,7 @@ func (s *Store) DeleteBookByKey(key uint64) error {
 	return nil
 }
 
+// GetAllBooks - returns all books in the store
 func (s *Store) GetAllBooks() ([]Book, error) {
 	var books []Book
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -112,10 +116,25 @@ func (s *Store) GetAllBooks() ([]Book, error) {
 	return books, nil
 }
 
+func (s *Store) UpdateBook(key uint64, book Book) (Book, error) {
+	err := s.db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("books"))
+		bytes, err := GetBufferFromStruct(book)
+		if err != nil {
+			return err
+		}
+		b.Put(itob(key), bytes)
+		return nil
+	})
+	return book, err
+}
+
+// GetBufferFromStruct converts any struct into a byte array
 func GetBufferFromStruct(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
+// itob converts a unint64 to a byte array
 func itob(v uint64) []byte {
 	b := make([]byte, 8)
 	binary.BigEndian.PutUint64(b, uint64(v))

@@ -19,7 +19,7 @@ func ListCmd(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalf("Error getting all books: %s", err)
 	}
-	fmt.Printf("%-5s %-75s %-20s %-10s %-10s %-15s\n", "ID", "Title (Key)", "Author", "Read", "Loan", "Loaned To")
+	fmt.Printf("%-5s %-75s %-20s %-10s %-10s %-15s\n", "ID", "Title", "Author", "Read", "Loan", "Loaned To")
 	for _, b := range books {
 		fmt.Printf("%-5d %-75s %-20s %-10s %-10s %-15s\n", b.ID, b.Title, b.Author, strconv.FormatBool(b.IsRead), strconv.FormatBool(b.IsOnLoan), b.LoanedTo)
 	}

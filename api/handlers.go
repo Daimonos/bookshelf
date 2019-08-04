@@ -66,6 +66,25 @@ func HandleDeleteByKey(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, http.StatusInternalServerError, err)
 	}
 	WriteJSON(w, http.StatusOK, id)
+}
+
+func HandleBookUpdate(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	var book data.Book
+	var err error
+	reader := json.NewDecoder(r.Body)
+	err = reader.Decode(&book)
+	id, err := strconv.ParseUint(vars["id"], 10, 64)
+	if err != nil {
+		WriteError(w, http.StatusBadRequest, err)
+	}
+
+	book, err = store.UpdateBook(id, book)
+	if err != nil {
+		WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+	WriteJSON(w, http.StatusOK, book)
 
 }
 

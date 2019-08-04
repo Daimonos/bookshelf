@@ -13,6 +13,7 @@ func NewRouter(s *data.Store) *mux.Router {
 	r.HandleFunc("/books", HandleBookList).Methods("GET")
 	r.HandleFunc("/books", HandleBookPost).Methods("POST")
 	r.HandleFunc("/books/{id}", HandleGetByKey).Methods("GET")
+	r.HandleFunc("/books/{id}", HandleBookUpdate).Methods("PUT")
 	r.HandleFunc("/books/{id}", HandleDeleteByKey).Methods("DELETE")
 	return r
 }
