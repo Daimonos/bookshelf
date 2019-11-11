@@ -13,6 +13,7 @@ var getCmd = &cobra.Command{
 	Run:   GetCmd,
 }
 
+// GetCmd is the get command handler for the cli
 func GetCmd(cmd *cobra.Command, args []string) {
 	key, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {

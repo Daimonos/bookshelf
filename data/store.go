@@ -17,7 +17,6 @@ type Store struct {
 
 // Init - Initializes the store
 func (s *Store) Init() {
-	log.Println("initializing store")
 	var err error
 	s.db, err = bolt.Open("my.db", 0600, nil)
 	if err != nil {

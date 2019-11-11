@@ -13,6 +13,7 @@ var deleteCmd = &cobra.Command{
 	Run:   DeleteCmd,
 }
 
+// DeleteCmd is the delete command handler for the cli
 func DeleteCmd(cmd *cobra.Command, args []string) {
 	key, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {

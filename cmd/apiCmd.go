@@ -11,12 +11,12 @@ import (
 var apiCmd = &cobra.Command{
 	Use:   "api",
 	Short: "Start API",
-	Run:   StartApi,
+	Run:   StartAPI,
 }
 
-func StartApi(cmd *cobra.Command, args []string) {
+// StartAPI is a command that will start up a REST api
+func StartAPI(cmd *cobra.Command, args []string) {
 	r := api.NewRouter(&store)
 	log.Println("Listening on port 8082")
 	log.Fatal(http.ListenAndServe(":8082", r))
-
 }

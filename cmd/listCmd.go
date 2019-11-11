@@ -14,6 +14,7 @@ var listCmd = &cobra.Command{
 	Run:   ListCmd,
 }
 
+// ListCmd is the list command handler for the cli
 func ListCmd(cmd *cobra.Command, args []string) {
 	books, err := store.GetAllBooks()
 	if err != nil {

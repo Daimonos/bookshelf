@@ -9,6 +9,7 @@ import (
 
 var store data.Store
 
+// Execute is the root cli command execution
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

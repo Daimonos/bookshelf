@@ -14,12 +14,13 @@ var addCmd = &cobra.Command{
 	Run:   AddCmd,
 }
 
+// AddCmd is the handler for the add cli command
 func AddCmd(cmd *cobra.Command, args []string) {
 	log.Println(args)
 	var isRead, onLoan bool
 	var err error
-	if len(args) != 5 {
-		log.Fatal("Expect 5 arguments: Title, Author, isRead, IsOnLoan, LoanedTo")
+	if len(args) != 6 {
+		log.Fatal("Expect 6 arguments: Title, Author, isRead, IsOnLoan, LoanedTo, ISBN")
 	}
 	isRead, err = strconv.ParseBool(args[2])
 	onLoan, err = strconv.ParseBool(args[3])
@@ -32,6 +33,7 @@ func AddCmd(cmd *cobra.Command, args []string) {
 		IsRead:   isRead,
 		IsOnLoan: onLoan,
 		LoanedTo: args[4],
+		ISBN:     args[5],
 	}
 	_, err = store.AddBook(book)
 	if err != nil {
